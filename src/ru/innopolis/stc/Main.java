@@ -11,10 +11,14 @@ public class Main {
         String[] words = new String[100];
 
         for (int i = 0; i < 100; i++) {
-            source[i] = "https://www.st.com/resource/en/datasheet/stm32f103rb.pdf";
+            source[i] = "master.txt";
         }
 
         getOccurencies getOccurencies = new getOccurencies(source, words, "result.txt");
-        getOccurencies.readString();
+        ReadData readData = new ReadData(getOccurencies);
+        ParceWriteData parceWriteData = new ParceWriteData(getOccurencies);
+        readData.start();
+        parceWriteData.start();
+
     }
 }

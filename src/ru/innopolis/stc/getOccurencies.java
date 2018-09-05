@@ -37,12 +37,10 @@ public class getOccurencies {
         this.res = res;
     }
 
-    public synchronized void readString() throws InterruptedException, IOException {
+    public synchronized void readString() throws IOException {
         String tempString;
-        int count = 100;
-        byte[] buffer = new byte[1024];
-
-        if ((sources.length - currentItemSources + count) % count > 1) {
+        int count = 10;
+        if ((sources.length - currentItemSources + count) / count > 1) {
 
         } else {
             count = sources.length - currentItemSources;
@@ -56,18 +54,27 @@ public class getOccurencies {
                     URL url = new URL(sources[countItemSources]);
                     inputStream = url.openStream();
                 } else {
-                    File inputFile = new File(sources[countItemSources]);
-                    FileInputStream fis = new FileInputStream(inputFile);
-                    inputStream = fis;
-                }
-                try (BufferedInputStream bis = new BufferedInputStream(inputStream)) {
-                    int i = 0;
-                    while ((i = bis.read(buffer, 0, 1024)) != -1) {
-                        System.out.println(buffer);
-                    }
 
-                } catch (IOException ex) {
-                    ex.printStackTrace();
+                    inputStream = new FileInputStream(new File(sources[countItemSources]));
+                }
+                String lineString = null;
+                String spliter = null;
+                String[] StrArray = null;
+
+                BufferedReader bufferedReaderreader = new BufferedReader(new FileReader(sources[countItemSources]));
+
+                while ((lineString = bufferedReaderreader.readLine()) != null) {
+                    spliter += lineString;
+                    System.out.println(lineString);
+                }
+                bufferedReaderreader.close();
+
+                StrArray = spliter.split("[\\.!?]");
+
+                for (String s : StrArray) {
+
+                    if (s.contains("мама мыла раму"))
+                        System.out.println(s);
                 }
 
                 arrayForFind[countItemSources] = sources[currentItemSources];
@@ -75,7 +82,7 @@ public class getOccurencies {
             }
         }
 
-        System.out.println(arrayForFind);
+        //System.out.println(arrayForFind);
         notifyAll();
     }
 
