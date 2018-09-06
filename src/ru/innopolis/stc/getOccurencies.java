@@ -19,8 +19,12 @@ void getOccurencies(String[] sources, String[] words, String res) throws …;
 Слово это последовательность символов кириллических, либо латинских.
 * */
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.Scanner;
 
 public class getOccurencies {
     private static int currentItemSources = 0;
@@ -30,7 +34,8 @@ public class getOccurencies {
     private String res;
     private String[] arrayForFind = new String[100];
     private int count = 0;
-    private final int BUFFER_SIZE = 65536;
+    private static int countOccurencies = 0;
+    private static int result = 2;
 
     public getOccurencies(String[] sources, String[] words, String res) {
         this.sources = sources;
@@ -39,15 +44,10 @@ public class getOccurencies {
     }
 
     public synchronized void readParceString() throws IOException {
-        String tempString;
-        int count = 10;
-        if ((sources.length - currentItemSources + count) / count > 1) {
+        if (countItemSources < sources.length) {
 
-        } else {
-            count = sources.length - currentItemSources;
-        }
-        for (countItemSources = 0; countItemSources < count; countItemSources++) {
             if (!sources[countItemSources].isEmpty()) {
+
                 InputStream inputStream;
                 if ((sources[countItemSources].regionMatches(true, 0, "ftp", 0, 3)) ||
                         (sources[countItemSources].regionMatches(true, 0, "www", 0, 3)) ||
@@ -55,57 +55,31 @@ public class getOccurencies {
                     URL url = new URL(sources[countItemSources]);
                     inputStream = url.openStream();
                 } else {
-
                     inputStream = new FileInputStream(new File(sources[countItemSources]));
                 }
-                String lineString = null;
-                String spliter = null;
-                String[] StrArray = null;
-
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+                Scanner scanner = new Scanner(inputStream);
                 try {
-                    byte[] byteBuffer = new byte[BUFFER_SIZE];
-                    int numberOfBytes;
-                    do {
-                        numberOfBytes = bufferedInputStream.read(byteBuffer, 0, BUFFER_SIZE);
-                    } while (numberOfBytes >= 0);
+                    while (scanner.hasNextLine()) {
+                        String line = scanner.nextLine();
+                        String[] strArray = line.split("[\\.!?]");
+                        for (String s : strArray) {
+                            if (s.toLowerCase().contains(words[0].toLowerCase())) {
+                                countOccurencies++;
+                            }
+                        }
+                    }
                 } finally {
-                    bufferedInputStream.close();
+                    scanner.close();
                 }
-                System.out.println(bufferedInputStream);
-                /*while ((lineString = bufferedReaderreader.readLine()) != null) {
-                    spliter += lineString;
-                    System.out.println(lineString);
-                }
-                bufferedReaderreader.close();*/
-
-                /*StrArray = spliter.split("[\\.!?]");
-
-                for (String s : StrArray) {
-
-                    if (s.contains("мама мыла раму"))
-                        System.out.println(s);
-                }*/
-
-                arrayForFind[countItemSources] = sources[currentItemSources];
-                currentItemSources++;
+                countItemSources++;
+                notifyAll();
             }
         }
-
-        //System.out.println(arrayForFind);
-        notifyAll();
     }
 
     public synchronized void writeToFile() throws InterruptedException {
-        boolean free = false;
         wait();
-        for (int i = 0; i < count; i++) {
-            for (int j = 0; j < words.length; j++) {
-                if (arrayForFind[i].contains(words[j])) {
-                    System.out.println("Finding word is" + words[j]);
-                    System.out.println("Пишем слово в файл");
-                }
-            }
-        }
+        System.out.println("Write succesfull");
+        System.out.println("Слово " + words[0] + " встречается в тексте " + sources[0] + countOccurencies + "раз\r\n");
     }
 }
