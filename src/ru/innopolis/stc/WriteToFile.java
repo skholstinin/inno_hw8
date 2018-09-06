@@ -1,9 +1,9 @@
 package ru.innopolis.stc;
 
-public class ParceWriteData extends Thread {
+public class WriteToFile extends Thread {
     getOccurencies getOccurencies;
 
-    public ParceWriteData(getOccurencies getOccurencies) {
+    public WriteToFile(getOccurencies getOccurencies) {
         this.getOccurencies = getOccurencies;
     }
 
@@ -11,7 +11,7 @@ public class ParceWriteData extends Thread {
     public void run() {
         try {
             for (; ; ) {
-                getOccurencies.findWord();
+                getOccurencies.writeToFile();
             }
         } catch (InterruptedException ex) {
             ex.printStackTrace();

@@ -2,10 +2,10 @@ package ru.innopolis.stc;
 
 import java.io.IOException;
 
-public class ReadData extends Thread {
+public class ReadAndParceData extends Thread {
     getOccurencies getOccurencies;
 
-    public ReadData(getOccurencies getOccurencies) {
+    public ReadAndParceData(getOccurencies getOccurencies) {
         this.getOccurencies = getOccurencies;
     }
 
@@ -13,7 +13,7 @@ public class ReadData extends Thread {
     public void run() {
         try {
             for (; ; ) {
-                getOccurencies.readString();
+                getOccurencies.readParceString();
             }
         } catch (IOException e) {
             e.printStackTrace();

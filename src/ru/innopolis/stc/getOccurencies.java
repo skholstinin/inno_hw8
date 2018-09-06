@@ -30,6 +30,7 @@ public class getOccurencies {
     private String res;
     private String[] arrayForFind = new String[100];
     private int count = 0;
+    private final int BUFFER_SIZE = 65536;
 
     public getOccurencies(String[] sources, String[] words, String res) {
         this.sources = sources;
@@ -37,7 +38,7 @@ public class getOccurencies {
         this.res = res;
     }
 
-    public synchronized void readString() throws IOException {
+    public synchronized void readParceString() throws IOException {
         String tempString;
         int count = 10;
         if ((sources.length - currentItemSources + count) / count > 1) {
@@ -61,21 +62,30 @@ public class getOccurencies {
                 String spliter = null;
                 String[] StrArray = null;
 
-                BufferedReader bufferedReaderreader = new BufferedReader(new FileReader(sources[countItemSources]));
-
-                while ((lineString = bufferedReaderreader.readLine()) != null) {
+                BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+                try {
+                    byte[] byteBuffer = new byte[BUFFER_SIZE];
+                    int numberOfBytes;
+                    do {
+                        numberOfBytes = bufferedInputStream.read(byteBuffer, 0, BUFFER_SIZE);
+                    } while (numberOfBytes >= 0);
+                } finally {
+                    bufferedInputStream.close();
+                }
+                System.out.println(bufferedInputStream);
+                /*while ((lineString = bufferedReaderreader.readLine()) != null) {
                     spliter += lineString;
                     System.out.println(lineString);
                 }
-                bufferedReaderreader.close();
+                bufferedReaderreader.close();*/
 
-                StrArray = spliter.split("[\\.!?]");
+                /*StrArray = spliter.split("[\\.!?]");
 
                 for (String s : StrArray) {
 
                     if (s.contains("мама мыла раму"))
                         System.out.println(s);
-                }
+                }*/
 
                 arrayForFind[countItemSources] = sources[currentItemSources];
                 currentItemSources++;
@@ -86,7 +96,7 @@ public class getOccurencies {
         notifyAll();
     }
 
-    public synchronized void findWord() throws InterruptedException {
+    public synchronized void writeToFile() throws InterruptedException {
         boolean free = false;
         wait();
         for (int i = 0; i < count; i++) {
