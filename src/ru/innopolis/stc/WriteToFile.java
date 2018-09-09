@@ -10,9 +10,10 @@ public class WriteToFile extends Thread {
     @Override
     public void run() {
         try {
-            for (; ; ) {
-                getOccurencies.writeToFile();
-            }
+
+            getOccurencies.writeToFile();
+            sleep(1);
+
         } catch (InterruptedException ex) {
             ex.printStackTrace();
         }

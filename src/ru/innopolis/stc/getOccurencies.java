@@ -19,20 +19,20 @@ void getOccurencies(String[] sources, String[] words, String res) throws …;
 Слово это последовательность символов кириллических, либо латинских.
 * */
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
-import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class getOccurencies {
-    private static int currentItemSources = 0;
-    private static int countItemSources = 0;
+    //private static int cntIteration=0;
+    private static int currentItemWords = 0;
+    private int currentItemSources = 0;
     private String[] sources;
     private String[] words;
     private String res;
-    private String[] arrayForFind = new String[100];
+    private Map<String, ArrayList<String>> findingHashMap = new ConcurrentHashMap<>();
     private int count = 0;
     private static int countOccurencies = 0;
     private static int result = 2;
@@ -43,43 +43,82 @@ public class getOccurencies {
         this.res = res;
     }
 
-    public synchronized void readParceString() throws IOException {
-        if (countItemSources < sources.length) {
+    public void setCurrentItemSources(int currentItemSources) {
+        this.currentItemSources = currentItemSources;
+    }
 
-            if (!sources[countItemSources].isEmpty()) {
+
+    public synchronized boolean readParceString() throws IOException {
+        if (currentItemSources < sources.length) {
+
+            if (!sources[currentItemSources].isEmpty()) {
 
                 InputStream inputStream;
-                if ((sources[countItemSources].regionMatches(true, 0, "ftp", 0, 3)) ||
-                        (sources[countItemSources].regionMatches(true, 0, "www", 0, 3)) ||
-                        (sources[countItemSources].regionMatches(true, 0, "http", 0, 4))) {
-                    URL url = new URL(sources[countItemSources]);
+                if ((sources[currentItemSources].regionMatches(true, 0, "ftp", 0, 3)) ||
+                        (sources[currentItemSources].regionMatches(true, 0, "www", 0, 3)) ||
+                        (sources[currentItemSources].regionMatches(true, 0, "http", 0, 4))) {
+                    URL url = new URL(sources[currentItemSources]);
                     inputStream = url.openStream();
                 } else {
-                    inputStream = new FileInputStream(new File(sources[countItemSources]));
+                    inputStream = new FileInputStream(new File(sources[currentItemSources]));
                 }
-                Scanner scanner = new Scanner(inputStream);
-                try {
-                    while (scanner.hasNextLine()) {
-                        String line = scanner.nextLine();
-                        String[] strArray = line.split("[\\.!?]");
-                        for (String s : strArray) {
-                            if (s.toLowerCase().contains(words[0].toLowerCase())) {
-                                countOccurencies++;
-                            }
-                        }
+
+                try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
+                    String lineString = null;
+                    String spliter = null;
+                    String[] StrArray = null;
+
+                    String newLine = System.getProperty("line.separator");
+                    StringBuilder result = new StringBuilder();
+                    String line;
+                    boolean flag = false;
+                    while ((line = bufferedReader.readLine()) != null) {
+                        result.append(flag ? newLine : "").append(line);
+                        flag = true;
                     }
-                } finally {
-                    scanner.close();
+                    bufferedReader.close();
+                    spliter += result;
+                    StrArray = spliter.split("[\\.!?]");
+                    for (String w : words) {
+                        ArrayList<String> findingString = new ArrayList<>();
+                        for (String s : StrArray) {
+                            if (s.toLowerCase().contains(w.toLowerCase()))
+                                findingString.add(s);
+                        }
+                        findingHashMap.put(w, findingString);
+                    }
+                } catch (IOException ex) {
+
+                    System.out.println(ex.getMessage());
                 }
-                countItemSources++;
-                notifyAll();
+                currentItemSources += currentItemSources;
             }
+            System.out.println("Source is done");
+            notifyAll();
+            return true;
+        } else {
+            return false;
         }
     }
 
     public synchronized void writeToFile() throws InterruptedException {
         wait();
-        System.out.println("Write succesfull");
-        System.out.println("Слово " + words[0] + " встречается в тексте " + sources[0] + countOccurencies + "раз\r\n");
+
+        File newFile = new File(res);
+        if (newFile.isFile() && newFile.exists()) {
+            newFile.delete();
+        }
+        try (BufferedWriter bufferWriter = new BufferedWriter(new FileWriter(newFile, true))) {
+            System.out.println("File is created");
+            for (Map.Entry<String, ArrayList<String>> element : findingHashMap.entrySet()) {
+
+                bufferWriter.write("\r\nСлово " + element.getKey() + " содержится в предложениях: \r\n");
+                for (String s : element.getValue()) {
+                    bufferWriter.write(s);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
