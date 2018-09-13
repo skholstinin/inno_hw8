@@ -6,22 +6,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class WriteToFile implements Runnable {
-    private String[] sources;
-    private String[] words;
+    private FindingResource findingResource;
     private String res;
-    private Map<String, ArrayList<String>> findingHashMap = new ConcurrentHashMap<>();
 
-    public WriteToFile(String res, Map<String, ArrayList<String>> findingHashMap) {
+    public WriteToFile(String res, FindingResource findingResource) {
         this.res = res;
-        this.findingHashMap = findingHashMap;
+        this.findingResource = findingResource;
     }
 
-    public void setFindingHashMap(Map<String, ArrayList<String>> findingHashMap) {
-        this.findingHashMap = findingHashMap;
-    }
+
 
     @Override
     public void run() {
@@ -31,7 +26,7 @@ public class WriteToFile implements Runnable {
         }
         try (BufferedWriter bufferWriter = new BufferedWriter(new FileWriter(newFile, true))) {
             System.out.println("File is created");
-            for (Map.Entry<String, ArrayList<String>> element : findingHashMap.entrySet()) {
+            for (Map.Entry<String, ArrayList<String>> element : findingResource.getFindingHashMap().entrySet()) {
 
                 bufferWriter.write("\r\nСлово " + element.getKey() + " содержится в предложениях: \r\n");
                 for (String s : element.getValue()) {

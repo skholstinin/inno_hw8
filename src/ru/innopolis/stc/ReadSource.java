@@ -3,23 +3,17 @@ package ru.innopolis.stc;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ReadSource implements Runnable {
     InputStream inputStream;
     private int currentItemSources;
     private String[] sources;
-    private Map<String, ArrayList<String>> findingHashMap = new ConcurrentHashMap<>();
+    FindingResource findingResource;
 
-    public ReadSource(int currentItemSources, String[] sources) {
+    public ReadSource(int currentItemSources, String[] sources, FindingResource findingResource) {
         this.currentItemSources = currentItemSources;
         this.sources = sources;
-    }
-
-    public InputStream getInputStream() {
-        return inputStream;
+        this.findingResource = findingResource;
     }
 
     @Override
@@ -31,7 +25,7 @@ public class ReadSource implements Runnable {
                 try {
                     URL url = new URL(sources[currentItemSources]);
                     try {
-                        inputStream = url.openStream();
+                        findingResource.setInputStreams(url.openStream());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -40,14 +34,13 @@ public class ReadSource implements Runnable {
                 }
             } else {
                 try {
-                    inputStream = new FileInputStream(new File(sources[currentItemSources]));
+                    findingResource.setInputStreams(new FileInputStream(new File(sources[currentItemSources])));
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
             }
         }
         System.out.println("Source № " + currentItemSources + " read is done");
-        notifyAll();
-
+        //notify();
     }
 }
