@@ -22,7 +22,6 @@ void getOccurencies(String[] sources, String[] words, String res) throws …;
 package ru.innopolis.stc;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,20 +31,19 @@ import java.util.concurrent.*;
 public class Main {
 
     public static String[] getFIleNames() {
-        File folder = new File("D:\\temp\\testSet1\\");
+        File folder = new File("D:\\temp\\testSet\\");
         File[] listOfFiles = folder.listFiles();
         List<String> results = new ArrayList<>();
 
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
-                results.add("D:\\temp\\testSet1\\" + listOfFiles[i].getName());
+                results.add("D:\\temp\\testSet\\" + listOfFiles[i].getName());
             }
         }
         return results.toArray(new String[0]);
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-
+    public static void main(String[] args) {
         final int QTY_THREADS = 20;
         String[] words = new String[7];
         ConcurrentHashMap<String, ArrayList<String>> findingHashMap = new ConcurrentHashMap<>();
@@ -61,26 +59,9 @@ public class Main {
         words[6] = "берлиоз";
         long startTime = System.currentTimeMillis();
         final ExecutorService taskExecutorRead = Executors.newFixedThreadPool(QTY_THREADS);
-        final ExecutorService taskExecutorSearch = Executors.newFixedThreadPool(QTY_THREADS);
-        final ExecutorService taskExecutorWrite = Executors.newFixedThreadPool(QTY_THREADS);
-        for (int i = 0; i < source.length; i += QTY_THREADS) {
-            if (i < source.length) {
-                taskExecutorRead.submit(new ReadSource(i, source, findingResource));
-            }
-            if (i + 1 < source.length) {
-                taskExecutorRead.submit(new ReadSource(i + 1, source, findingResource));//Почему-то так работает медленнее
-            }
-            if (i + 2 < source.length) {
-                taskExecutorRead.submit(new ReadSource(i + 2, source, findingResource));
-            }
-            if (i + 3 < source.length) {
-                taskExecutorRead.submit(new ReadSource(i + 3, source, findingResource));
-            }
-            if (i + 4 < source.length) {
-                taskExecutorRead.submit(new ReadSource(i + 4, source, findingResource));
-            }
-            //taskExecutorRead.submit(new ReadSource(i, source, findingResource));
-
+        for (int i = 0; i < source.length; i++) {
+            taskExecutorRead.submit(new ReadSource(findingResource, source, i));
+            taskExecutorRead.submit(new SearchWord(findingResource, words, i));
         }
         taskExecutorRead.shutdown();
         try {
@@ -88,22 +69,8 @@ public class Main {
         } catch (InterruptedException ex) {
             ex.printStackTrace();
         }
-        for (int i = 0; i < source.length; i++) {
-            taskExecutorSearch.submit(new SearchWord(words, findingResource));
-        }
-        taskExecutorSearch.shutdown();
-        try {
-            taskExecutorSearch.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
-        taskExecutorWrite.submit(new WriteToFile("result.txt", findingResource));
-        taskExecutorWrite.shutdown();
-        try {
-            taskExecutorWrite.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
+        WriteToFile writeToFile = new WriteToFile("result.txt", findingResource);
+        writeToFile.run();
         long endTime = System.currentTimeMillis() - startTime;
         System.out.println("\r\nЗатрачено времени: " + endTime / 1000 + "секунд" + "\r\n");
         System.out.println("The End");

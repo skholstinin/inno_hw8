@@ -10,7 +10,7 @@ public class ReadSource implements Runnable {
     private String[] sources;
     FindingResource findingResource;
 
-    public ReadSource(int currentItemSources, String[] sources, FindingResource findingResource) {
+    public ReadSource(FindingResource findingResource, String[] sources, int currentItemSources) {
         this.currentItemSources = currentItemSources;
         this.sources = sources;
         this.findingResource = findingResource;

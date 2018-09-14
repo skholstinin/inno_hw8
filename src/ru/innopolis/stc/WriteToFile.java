@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class WriteToFile implements Runnable {
+public class WriteToFile {
     private FindingResource findingResource;
     private String res;
 
@@ -18,7 +18,6 @@ public class WriteToFile implements Runnable {
 
 
 
-    @Override
     public void run() {
         File newFile = new File(res);
         if (newFile.isFile() && newFile.exists()) {
