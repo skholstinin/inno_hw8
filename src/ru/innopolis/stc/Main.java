@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.*;
 
 
@@ -57,6 +58,7 @@ public class Main {
         words[4] = "маргарита";
         words[5] = "бегемот";
         words[6] = "берлиоз";
+        Scanner scanner = new Scanner(System.in);
         long startTime = System.currentTimeMillis();
         final ExecutorService taskExecutorRead = Executors.newFixedThreadPool(QTY_THREADS);
         for (int i = 0; i < source.length; i++) {
