@@ -31,13 +31,13 @@ import java.util.concurrent.*;
 public class Main {
 
     public static String[] getFIleNames() {
-        File folder = new File("D:\\temp\\testSet\\");
+        File folder = new File("E:\\temp\\testSet\\");
         File[] listOfFiles = folder.listFiles();
         List<String> results = new ArrayList<>();
 
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
-                results.add("D:\\temp\\testSet\\" + listOfFiles[i].getName());
+                results.add("E:\\temp\\testSet\\" + listOfFiles[i].getName());
             }
         }
         return results.toArray(new String[0]);
@@ -50,9 +50,9 @@ public class Main {
         CopyOnWriteArrayList<InputStream> inputStreamsList = new CopyOnWriteArrayList<>();
         FindingResource findingResource = new FindingResource(inputStreamsList, findingHashMap);
         String[] source = getFIleNames();
-        words[0] = "qptefypl";
-        words[1] = "end";
-        words[2] = "start";
+        words[0] = "starter";
+        words[1] = "smarter";
+        words[2] = "null";
         words[3] = "мастер";
         words[4] = "маргарита";
         words[5] = "бегемот";
@@ -60,8 +60,8 @@ public class Main {
         long startTime = System.currentTimeMillis();
         final ExecutorService taskExecutorRead = Executors.newFixedThreadPool(QTY_THREADS);
         for (int i = 0; i < source.length; i++) {
-            taskExecutorRead.submit(new ReadSource(findingResource, source, i));
-            taskExecutorRead.submit(new SearchWord(findingResource, words, i));
+            taskExecutorRead.execute(new ReadSource(findingResource, source, i));
+            taskExecutorRead.execute(new SearchWord(findingResource, words, i));
         }
         taskExecutorRead.shutdown();
         try {

@@ -11,6 +11,8 @@ public class SearchWord implements Runnable {
     private String[] words;
     private FindingResource findingResource;
     private int currentStream;
+    private final int MAX_READ_SIZE = 10_000_000;
+    private int finalLength = 0;
 
     public SearchWord(FindingResource findingResource, String[] words, int currentStream) {
         this.words = words;
@@ -20,43 +22,42 @@ public class SearchWord implements Runnable {
 
     @Override
     public void run() {
+        int length = 0;
         try {
-            //wait();
-            try {
-                if (findingResource.getInputStreams().get(currentStream).available() > 0) {
-                    try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(findingResource.getInputStreams().get(currentStream)))) {
-                        String spliter = null;
-                        String[] StrArray = null;
-                        String newLine = System.getProperty("line.separator");
-                        StringBuilder result = new StringBuilder();
-                        String line;
-                        boolean flag = false;
-                        while ((line = bufferedReader.readLine()) != null) {
-                            result.append(flag ? newLine : "").append(line);
-                            flag = true;
-                        }
-                        bufferedReader.close();
-                        spliter += result;
-                        StrArray = spliter.split("[\\.!?]");
-                        for (String w : words) {
-                            ArrayList<String> findingString = new ArrayList<>();
-                            for (String s : StrArray) {
-                                if (s.toLowerCase().contains(w.toLowerCase()))
-                                    findingString.add(s);
-                            }
-                            findingResource.setFindingHashMap(w, findingString);
-                            System.out.println("Find one string");
-                        }
-                        sleep(1);
-                    } catch (IOException ex) {
-
-                        System.out.println(ex.getMessage());
+            while (findingResource.getInputStreamsList().size() < currentStream + 1) {
+                sleep(1);
+            }
+            try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(findingResource.getInputStreamsList().get(currentStream)))) {
+                length = findingResource.getInputStreamsList().get(currentStream).available();
+                while (length > 0) {
+                    String spliter = null;
+                    String[] StrArray = null;
+                    String newLine = System.getProperty("line.separator");
+                    StringBuilder result = new StringBuilder();
+                    String line;
+                    boolean flag = false;
+                    while ((line = bufferedReader.readLine()) != null && finalLength < MAX_READ_SIZE) {
+                        finalLength += line.length();
+                        result.append(flag ? newLine : "").append(line);
+                        flag = true;
                     }
-                } else {
-                    sleep(1);
+                    spliter = result.toString();
+                    StrArray = spliter.split("[\\.!?]");
+                    for (String w : words) {
+                        ArrayList<String> findingString = new ArrayList<>();
+                        for (String s : StrArray) {
+                            if (s.toLowerCase().contains(w.toLowerCase())) {
+                                findingString.add(s);
+                            }
+                        }
+                        findingResource.setFindingHashMap(Integer.toString(currentStream), findingString);
+                        length -= finalLength;
+                        spliter = null;
+                    }
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ex) {
+
+                System.out.println(ex.getMessage());
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

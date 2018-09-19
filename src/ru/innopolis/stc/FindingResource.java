@@ -7,10 +7,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class FindingResource {
     private ConcurrentHashMap<String, ArrayList<String>> findingHashMap;
-    private CopyOnWriteArrayList<InputStream> inputStreams;
+    private CopyOnWriteArrayList<InputStream> inputStreamsList;
 
     public FindingResource(CopyOnWriteArrayList<InputStream> inputStreams, ConcurrentHashMap findingHashMap) {
-        this.inputStreams = inputStreams;
+        this.inputStreamsList = inputStreams;
         this.findingHashMap = findingHashMap;
     }
 
@@ -18,12 +18,16 @@ public class FindingResource {
         return findingHashMap;
     }
 
-    public CopyOnWriteArrayList<InputStream> getInputStreams() {
-        return inputStreams;
+    public CopyOnWriteArrayList<InputStream> getInputStreamsList() {
+        return inputStreamsList;
+    }
+
+    public int getNumberStream() {
+        return 10;
     }
 
     public void setInputStreams(InputStream inputStreams) {
-        this.inputStreams.add(inputStreams);
+        this.inputStreamsList.add(inputStreams);
     }
 
     public void setFindingHashMap(String key, ArrayList<String> value) {
