@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
 
 public class WriteToFile {
     private FindingResource findingResource;
@@ -16,8 +15,6 @@ public class WriteToFile {
         this.findingResource = findingResource;
     }
 
-
-
     public void run() {
         File newFile = new File(res);
         if (newFile.isFile() && newFile.exists()) {
@@ -25,10 +22,9 @@ public class WriteToFile {
         }
         try (BufferedWriter bufferWriter = new BufferedWriter(new FileWriter(newFile, true))) {
             System.out.println("File is created");
-            for (Map.Entry<String, ArrayList<String>> element : findingResource.getFindingHashMap().entrySet()) {
-
-                bufferWriter.write("\r\nСлово " + element.getKey() + " содержится в предложениях: \r\n");
-                for (String s : element.getValue()) {
+            ArrayList<String> item;
+            while ((item = findingResource.getQueueItem()) != null) {
+                for (String s : item) {
                     bufferWriter.write(s);
                 }
             }

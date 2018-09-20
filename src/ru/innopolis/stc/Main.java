@@ -32,13 +32,13 @@ import java.util.concurrent.*;
 public class Main {
 
     public static String[] getFIleNames() {
-        File folder = new File("E:\\temp\\testSet\\");
+        File folder = new File("D:\\temp\\testSet\\");
         File[] listOfFiles = folder.listFiles();
         List<String> results = new ArrayList<>();
 
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
-                results.add("E:\\temp\\testSet\\" + listOfFiles[i].getName());
+                results.add("D:\\temp\\testSet\\" + listOfFiles[i].getName());
             }
         }
         return results.toArray(new String[0]);

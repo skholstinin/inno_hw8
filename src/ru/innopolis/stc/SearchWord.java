@@ -50,7 +50,7 @@ public class SearchWord implements Runnable {
                                 findingString.add(s);
                             }
                         }
-                        findingResource.setFindingHashMap(Integer.toString(currentStream), findingString);
+                        findingResource.addItemToQueue(findingString);
                         length -= finalLength;
                         spliter = null;
                     }

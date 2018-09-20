@@ -40,7 +40,5 @@ public class ReadSource implements Runnable {
                 }
             }
         }
-        //System.out.println("Source № " + currentItemSources + " read is done");
-        //notify();
     }
 }
