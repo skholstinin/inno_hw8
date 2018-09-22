@@ -29,13 +29,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Scanner;
 import java.util.concurrent.*;
 
 
 public class Main {
 
-    static final Logger userLogger = Logger.getLogger(Main.class);
+    static final Logger myLogger = Logger.getLogger(Main.class);
 
     public static String[] getFIleNames() {
         File folder = new File("E:\\temp\\testSet\\");
@@ -66,7 +65,7 @@ public class Main {
         words[4] = "маргарита";
         words[5] = "бегемот";
         words[6] = "берлиоз";
-        Scanner scanner = new Scanner(System.in);
+        myLogger.info("Start finding words");
         long startTime = System.currentTimeMillis();
         final ExecutorService taskExecutor = Executors.newFixedThreadPool(QTY_THREADS);
         for (int i = 0; i < source.length; i++) {
@@ -83,7 +82,7 @@ public class Main {
         WriteToFile writeToFile = new WriteToFile("result.txt", findingResource);
         writeToFile.run();
         long endTime = System.currentTimeMillis() - startTime;
-        System.out.println("\r\nЗатрачено времени: " + endTime / 1000 + "секунд" + "\r\n");
-        System.out.println("The End");
+        myLogger.info("\r\nЗатрачено времени: " + endTime / 1000 + "секунд" + "\r\n");
+        myLogger.info("The End");
     }
 }
