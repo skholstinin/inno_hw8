@@ -1,12 +1,15 @@
 package ru.innopolis.stc;
 
+import org.apache.log4j.Logger;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class WriteToFile {
+public class WriteToFile implements Runnable {
+    static final Logger myLogger = Logger.getLogger(GetStream.class);
     private FindingResource findingResource;
     private String res;
 
@@ -21,7 +24,7 @@ public class WriteToFile {
             newFile.delete();
         }
         try (BufferedWriter bufferWriter = new BufferedWriter(new FileWriter(newFile, true))) {
-            System.out.println("File is created");
+            myLogger.info("File is created");
             ArrayList<String> item;
             while ((item = findingResource.getQueueItem()) != null) {
                 for (String s : item) {
@@ -29,6 +32,7 @@ public class WriteToFile {
                 }
             }
         } catch (IOException e) {
+            myLogger.error("File not created, because...");
             e.printStackTrace();
         }
     }
