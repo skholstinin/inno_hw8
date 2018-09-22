@@ -1,23 +1,26 @@
 package ru.innopolis.stc;
 
+import org.apache.log4j.Logger;
+
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.Callable;
 
-public class ReadSource implements Runnable {
-    InputStream inputStream;
+public class GetStream implements Callable<InputStream> {
+    static final Logger myLogger = Logger.getLogger(GetStream.class);
     private int currentItemSources;
     private String[] sources;
-    FindingResource findingResource;
 
-    public ReadSource(FindingResource findingResource, String[] sources, int currentItemSources) {
+    public GetStream(String[] sources, int currentItemSources) {
         this.currentItemSources = currentItemSources;
         this.sources = sources;
-        this.findingResource = findingResource;
     }
 
     @Override
-    public void run() {
+    public InputStream call() {
+        InputStream inputStream = null;
+        myLogger.info("Start read " + currentItemSources + " item");
         if (!sources[currentItemSources].isEmpty()) {
             if ((sources[currentItemSources].regionMatches(true, 0, "ftp", 0, 3)) ||
                     (sources[currentItemSources].regionMatches(true, 0, "www", 0, 3)) ||
@@ -25,7 +28,7 @@ public class ReadSource implements Runnable {
                 try {
                     URL url = new URL(sources[currentItemSources]);
                     try {
-                        findingResource.setInputStreams(url.openStream());
+                        inputStream = url.openStream();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -34,11 +37,15 @@ public class ReadSource implements Runnable {
                 }
             } else {
                 try {
-                    findingResource.setInputStreams(new FileInputStream(new File(sources[currentItemSources])));
+                    inputStream = new FileInputStream(new File(sources[currentItemSources]));
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
             }
+            return inputStream;
+        } else {
+            myLogger.error("File " + "№" + currentItemSources + "not found");
+            return null;
         }
     }
 }

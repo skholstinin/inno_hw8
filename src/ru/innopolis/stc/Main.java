@@ -21,35 +21,43 @@ void getOccurencies(String[] sources, String[] words, String res) throws …;
 
 package ru.innopolis.stc;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Scanner;
 import java.util.concurrent.*;
 
 
 public class Main {
 
+    static final Logger userLogger = Logger.getLogger(Main.class);
+
     public static String[] getFIleNames() {
-        File folder = new File("D:\\temp\\testSet\\");
+        File folder = new File("E:\\temp\\testSet\\");
         File[] listOfFiles = folder.listFiles();
         List<String> results = new ArrayList<>();
 
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
-                results.add("D:\\temp\\testSet\\" + listOfFiles[i].getName());
+                results.add("E:\\temp\\testSet\\" + listOfFiles[i].getName());
             }
         }
         return results.toArray(new String[0]);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+
+        PropertyConfigurator.configure("log4j.properties");
         final int QTY_THREADS = 20;
         String[] words = new String[7];
-        ConcurrentHashMap<String, ArrayList<String>> findingHashMap = new ConcurrentHashMap<>();
-        CopyOnWriteArrayList<InputStream> inputStreamsList = new CopyOnWriteArrayList<>();
-        FindingResource findingResource = new FindingResource(inputStreamsList, findingHashMap);
+        Queue<ArrayList<String>> queue = new ConcurrentLinkedQueue<>();
+        FindingResource findingResource = new FindingResource(queue);
+
         String[] source = getFIleNames();
         words[0] = "starter";
         words[1] = "smarter";
@@ -60,14 +68,15 @@ public class Main {
         words[6] = "берлиоз";
         Scanner scanner = new Scanner(System.in);
         long startTime = System.currentTimeMillis();
-        final ExecutorService taskExecutorRead = Executors.newFixedThreadPool(QTY_THREADS);
+        final ExecutorService taskExecutor = Executors.newFixedThreadPool(QTY_THREADS);
         for (int i = 0; i < source.length; i++) {
-            taskExecutorRead.execute(new ReadSource(findingResource, source, i));
-            taskExecutorRead.execute(new SearchWord(findingResource, words, i));
+            Future<InputStream> is = taskExecutor.submit(new GetStream(source, i));
+            Future<StringBuilder> sb = taskExecutor.submit(new ReadStream(is.get()));
+            taskExecutor.submit(new SearchWord(findingResource, sb.get(), words));
         }
-        taskExecutorRead.shutdown();
+        taskExecutor.shutdown();
         try {
-            taskExecutorRead.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            taskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException ex) {
             ex.printStackTrace();
         }
