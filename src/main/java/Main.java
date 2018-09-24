@@ -19,8 +19,6 @@ void getOccurencies(String[] sources, String[] words, String res) throws …;
 * */
 
 
-package ru.innopolis.stc;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -51,7 +49,7 @@ public class Main {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
 
-        PropertyConfigurator.configure("log4j.properties");
+        PropertyConfigurator.configure("src/main/resources/log4j.properties");
         final int QTY_THREADS = 20;
         String[] words = new String[7];
         Queue<ArrayList<String>> queue = new ConcurrentLinkedQueue<>();
