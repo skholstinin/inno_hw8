@@ -35,13 +35,13 @@ public class Main {
     static final Logger myLogger = Logger.getLogger(Main.class);
 
     public static String[] getFIleNames() {
-        File folder = new File("E:\\temp\\testSet\\");
+        File folder = new File("E:\\temp\\testSet2\\");
         File[] listOfFiles = folder.listFiles();
         List<String> results = new ArrayList<>();
 
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
-                results.add("E:\\temp\\testSet\\" + listOfFiles[i].getName());
+                results.add("E:\\temp\\testSet2\\" + listOfFiles[i].getName());
             }
         }
         return results.toArray(new String[0]);
@@ -56,13 +56,13 @@ public class Main {
         FindingResource findingResource = new FindingResource(queue);
 
         String[] source = getFIleNames();
-        words[0] = "starter";
-        words[1] = "smarter";
-        words[2] = "null";
-        words[3] = "мастер";
-        words[4] = "маргарита";
-        words[5] = "бегемот";
-        words[6] = "берлиоз";
+        words[0] = "computer";
+        words[1] = "programmer";
+        words[2] = "construction";
+        words[3] = "getter";
+        words[4] = "setter";
+        words[5] = "javacources";
+        words[6] = "test";
         myLogger.info("Start finding words");
         long startTime = System.currentTimeMillis();
         final ExecutorService taskExecutor = Executors.newFixedThreadPool(QTY_THREADS);

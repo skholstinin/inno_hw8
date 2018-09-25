@@ -27,7 +27,7 @@ public class SearchWord implements Callable<Queue> {
             for (String s : StrArray) {
                 if (s.toLowerCase().contains(w.toLowerCase())) {
                     myLogger.info("find" + w);
-                    findingString.add(s);
+                    findingString.add(s + ".\r\n");
                 }
             }
             findingResource.addItemToQueue(findingString);

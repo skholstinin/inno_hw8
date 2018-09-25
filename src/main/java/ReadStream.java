@@ -38,6 +38,7 @@ public class ReadStream implements Callable<StringBuilder> {
                 }
                 length -= finalLength;
             }
+            //finalLength=0;
         } catch (IOException e) {
             e.printStackTrace();
         }
