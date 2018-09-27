@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Scanner;
 import java.util.concurrent.*;
 
 
@@ -35,13 +36,13 @@ public class Main {
     static final Logger myLogger = Logger.getLogger(Main.class);
 
     public static String[] getFIleNames() {
-        File folder = new File("E:\\temp\\testSet2\\");
+        File folder = new File("E:\\temp\\testSet3\\");
         File[] listOfFiles = folder.listFiles();
         List<String> results = new ArrayList<>();
 
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
-                results.add("E:\\temp\\testSet2\\" + listOfFiles[i].getName());
+                results.add("E:\\temp\\testSet3\\" + listOfFiles[i].getName());
             }
         }
         return results.toArray(new String[0]);
@@ -50,26 +51,28 @@ public class Main {
     public static void main(String[] args) throws ExecutionException, InterruptedException {
 
         PropertyConfigurator.configure("src/main/resources/log4j.properties");
-        final int QTY_THREADS = 20;
+        final int QTY_THREADS = 10;
         String[] words = new String[7];
         Queue<ArrayList<String>> queue = new ConcurrentLinkedQueue<>();
         FindingResource findingResource = new FindingResource(queue);
-
+        ArrayList<StringBuilder> listStringBuilder = new ArrayList<>();
+        Scanner scanner = new Scanner(System.in);
+        scanner.nextLine();
         String[] source = getFIleNames();
         words[0] = "computer";
         words[1] = "programmer";
         words[2] = "construction";
         words[3] = "getter";
         words[4] = "setter";
-        words[5] = "javacources";
-        words[6] = "test";
+        words[5] = "starter";
+        words[6] = "smarter";
         myLogger.info("Start finding words");
         long startTime = System.currentTimeMillis();
         final ExecutorService taskExecutor = Executors.newFixedThreadPool(QTY_THREADS);
         for (int i = 0; i < source.length; i++) {
             Future<InputStream> is = taskExecutor.submit(new GetStream(source, i));
-            Future<StringBuilder> sb = taskExecutor.submit(new ReadStream(is.get()));
-            taskExecutor.submit(new SearchWord(findingResource, sb.get(), words));
+            Future<ArrayList<StringBuilder>> sb = taskExecutor.submit(new ReadStream(is.get()));
+            taskExecutor.submit(new SearchWord(findingResource, sb.get(), i, words));
         }
         taskExecutor.shutdown();
         try {
