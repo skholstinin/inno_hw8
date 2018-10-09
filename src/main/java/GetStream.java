@@ -1,7 +1,6 @@
 import org.apache.log4j.Logger;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.Callable;
 
@@ -15,35 +14,32 @@ public class GetStream implements Callable<InputStream> {
         this.sources = sources;
     }
 
+    public GetStream(String[] sources, String path) {
+    }
+
+    public InputStream createInputStreamFromUrl(String path) throws IOException {
+        return new URL(path).openStream();
+    }
+
+    public InputStream createInputStreamFromFile(String path) throws FileNotFoundException {
+        return new FileInputStream(new File(path));
+    }
+
+
     @Override
-    public InputStream call() {
-        InputStream inputStream = null;
+    public InputStream call() throws IOException {
         myLogger.info("Start read " + currentItemSources + " item");
         if (!sources[currentItemSources].isEmpty()) {
             if ((sources[currentItemSources].regionMatches(true, 0, "ftp", 0, 3)) ||
                     (sources[currentItemSources].regionMatches(true, 0, "www", 0, 3)) ||
                     (sources[currentItemSources].regionMatches(true, 0, "http", 0, 4))) {
-                try {
-                    URL url = new URL(sources[currentItemSources]);
-                    try {
-                        inputStream = url.openStream();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
+                return createInputStreamFromUrl(sources[currentItemSources]);
             } else {
-                try {
-                    inputStream = new FileInputStream(new File(sources[currentItemSources]));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
+                return createInputStreamFromFile(sources[currentItemSources]);
             }
-            return inputStream;
         } else {
-            myLogger.error("File " + "№" + currentItemSources + "not found");
             return null;
         }
     }
 }
+

@@ -19,7 +19,11 @@ public class WriteToFile implements Runnable {
     public void run() {
         File newFile = new File(res);
         if (newFile.isFile() && newFile.exists()) {
-            newFile.delete();
+            if (newFile.delete()) {
+                myLogger.info("Delete file successful");
+            } else {
+                myLogger.error("Delete file error");
+            }
         }
         try (BufferedWriter bufferWriter = new BufferedWriter(new FileWriter(newFile, true))) {
             myLogger.info("File is created");
@@ -31,7 +35,6 @@ public class WriteToFile implements Runnable {
             }
         } catch (IOException e) {
             myLogger.error("File not created, because...");
-            e.printStackTrace();
         }
     }
 }

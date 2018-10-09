@@ -36,13 +36,13 @@ public class Main {
     static final Logger myLogger = Logger.getLogger(Main.class);
 
     public static String[] getFIleNames() {
-        File folder = new File("E:\\temp\\testSet3\\");
+        File folder = new File("E:\\temp\\testSet\\");
         File[] listOfFiles = folder.listFiles();
         List<String> results = new ArrayList<>();
 
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
-                results.add("E:\\temp\\testSet3\\" + listOfFiles[i].getName());
+                results.add("E:\\temp\\testSet\\" + listOfFiles[i].getName());
             }
         }
         return results.toArray(new String[0]);
@@ -55,7 +55,6 @@ public class Main {
         String[] words = new String[7];
         Queue<ArrayList<String>> queue = new ConcurrentLinkedQueue<>();
         FindingResource findingResource = new FindingResource(queue);
-        ArrayList<StringBuilder> listStringBuilder = new ArrayList<>();
         Scanner scanner = new Scanner(System.in);
         scanner.nextLine();
         String[] source = getFIleNames();
@@ -71,15 +70,10 @@ public class Main {
         final ExecutorService taskExecutor = Executors.newFixedThreadPool(QTY_THREADS);
         for (int i = 0; i < source.length; i++) {
             Future<InputStream> is = taskExecutor.submit(new GetStream(source, i));
-            Future<ArrayList<StringBuilder>> sb = taskExecutor.submit(new ReadStream(is.get()));
-            taskExecutor.submit(new SearchWord(findingResource, sb.get(), i, words));
+            taskExecutor.submit(new ReadAndSearch(is.get(), findingResource, words));
         }
         taskExecutor.shutdown();
-        try {
-            taskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
+        taskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         WriteToFile writeToFile = new WriteToFile("result.txt", findingResource);
         writeToFile.run();
         long endTime = System.currentTimeMillis() - startTime;
