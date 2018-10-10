@@ -4,7 +4,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class FindingResource {
     private Queue<ArrayList<String>> queue = new ConcurrentLinkedQueue<>();
-
     public FindingResource(Queue<ArrayList<String>> queue) {
         this.queue = queue;
     }
