@@ -17,6 +17,7 @@ public class ReadAndSearch implements Callable<Integer> {
     private InputStream inputStream;
     private String[] words;
     private boolean flagFindWord = false;
+    private static int cntMatch = 0;
 
 
     public ReadAndSearch(InputStream inputStream, FindingResource findingResource, String[] words) {
@@ -38,36 +39,49 @@ public class ReadAndSearch implements Callable<Integer> {
         return length;
     }
 
+    public int searchCurrentWord(String word, ArrayList<String> listString) {
+        ArrayList<String> findingString = new ArrayList<>();
+        for (String s : listString) {
+            if (s.toLowerCase().contains(word.toLowerCase())) {
+                findingString.add(s + ".\r\n");
+                flagFindWord = true;
+                cntMatch++;
+            }
+        }
+        if (flagFindWord) {
+            flagFindWord = false;
+            findingResource.addItemToQueue(findingString);
+        }
+        return cntMatch;
+    }
+
+    public ArrayList<String> separateLongStringToListSentence(StringBuilder result) {
+        ArrayList<String> stringList = new ArrayList<>();
+        String spliter;
+        String[] strArray;
+        spliter = result.toString();
+        strArray = spliter.split("[\\.!?]");
+        stringList.addAll(Arrays.asList(strArray));
+        return stringList;
+    }
 
     @Override
     public Integer call() {
         int finalLength = 0;
-        ArrayList<String> listString = new ArrayList<>();
+        int cntMatchCurrent;
+        ArrayList<String> stringList = new ArrayList<>();
         int length = 0;
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
             length = inputStream.available();
             myLogger.info("Read file size " + length);
             while (length > 0) {
-                listString.clear();
-                String[] strArray;
-                String spliter;
+                stringList.clear();
                 StringBuilder result = new StringBuilder();
                 finalLength = separateBufferToString(bufferedReader, result);
-                spliter = result.toString();
-                strArray = spliter.split("[\\.!?]");
-                listString.addAll(Arrays.asList(strArray));
-                ArrayList<String> findingString = new ArrayList<>();
+                stringList.addAll(separateLongStringToListSentence(result));
                 for (String w : words) {
-                    for (String s : listString) {
-                        if (s.toLowerCase().contains(w.toLowerCase())) {
-                            findingString.add(s + ".\r\n");
-                            flagFindWord = true;
-                        }
-                    }
-                    if (flagFindWord) {
-                        flagFindWord = false;
-                        findingResource.addItemToQueue(findingString);
-                    }
+                    cntMatchCurrent = searchCurrentWord(w, stringList);
+                    myLogger.info("Match " + cntMatchCurrent);
                 }
                 if (finalLength == 0) {
                     myLogger.info("End of file");

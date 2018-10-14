@@ -14,9 +14,6 @@ public class GetStream implements Callable<InputStream> {
         this.sources = sources;
     }
 
-    public GetStream(String[] sources, String path) {
-    }
-
     public InputStream createInputStreamFromUrl(String path) throws IOException {
         return new URL(path).openStream();
     }
@@ -33,8 +30,10 @@ public class GetStream implements Callable<InputStream> {
             if ((sources[currentItemSources].regionMatches(true, 0, "ftp", 0, 3)) ||
                     (sources[currentItemSources].regionMatches(true, 0, "www", 0, 3)) ||
                     (sources[currentItemSources].regionMatches(true, 0, "http", 0, 4))) {
+                createInputStreamFromUrl(sources[currentItemSources]);
                 return createInputStreamFromUrl(sources[currentItemSources]);
             } else {
+                createInputStreamFromFile(sources[currentItemSources]);
                 return createInputStreamFromFile(sources[currentItemSources]);
             }
         } else {
